@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: postgres_newsbot
+    env_file:
+      - .env
+    volumes:
+      - ./.postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - newsbot_network
+
+  bot:
+    build: .
+    container_name: newsbot
+    command: python3 main.py
+    env_file:
+      - .env
+    volumes:
+      - .:/bot
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    networks:
+      - newsbot_network
