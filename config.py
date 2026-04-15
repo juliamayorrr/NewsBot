@@ -14,3 +14,11 @@ class Database:
     user = os.getenv('POSTGRES_USER')
     password = os.getenv('POSTGRES_PASSWORD')
     url = f'postgresql+asyncpg://{user}:{password}@{host}:{port}/{name}'
+
+class NewsAPI:
+    api_key = os.getenv('NEWSAPI_KEY')
+    base_url = "https://newsapi.org/v2"
+    news_modes = {'all': '/everything',
+                  'top': '/top-headlines'
+                  }
+    sources = None
