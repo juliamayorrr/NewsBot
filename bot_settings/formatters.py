@@ -17,3 +17,9 @@ def format_user_settings(user: Users) -> str:
                      f'Ваше количество новостей по умолчанию: {user.default_news_count}')
 
     return user_settings
+
+def format_user_subscribes(user: Users) -> str:
+    subs_list = [source.domain for source in user.subscribed_sources] if user.subscribed_sources else 'Подписок нет'
+    subs = f'Ваши подписки: {', '.join(subs_list)}'
+
+    return subs

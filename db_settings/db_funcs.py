@@ -1,3 +1,4 @@
+from aiogram import Bot
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -8,6 +9,7 @@ from news_collectors.news_api import NewsAPIClient
 from sqlalchemy import select
 from typing import Sequence
 from db_settings.models import Users, News, NewsSources
+from bot_settings import text as tx, formatters as form
 
 
 async def load_sources_to_cache() -> dict:
@@ -28,6 +30,9 @@ async def add_news() -> None:
     raw_news = await client.fetch_news()
 
     async with session_maker() as session:
+        result = await session.execute(select(News.url))
+        existing_urls = set(result.scalars().all())
+
         sources = config.NewsAPI.sources
         news = []
         for item in raw_news:
@@ -38,14 +43,53 @@ async def add_news() -> None:
             else:
                 continue
 
-            news.append(News(
-                source_id=source_id,
-                title=item['title'],
-                url=item['url']
-            ))
+            if item['url'] not in existing_urls:
+                news.append(News(
+                    source_id=source_id,
+                    title=item['title'],
+                    url=item['url']
+                ))
 
         session.add_all(news)
         await session.commit()
+
+
+async def send_news_to_subscribers(bot: Bot) -> None:
+    """Рассылает новости из всех источников подписанным пользователям"""
+
+    async with (session_maker() as session):
+        result = await session.execute(select(Users
+        ).options(
+        selectinload(Users.subscribed_sources)
+        ).where(
+            Users.subscribed_sources.any()
+        ))
+        users = result.scalars().all()
+
+        for user in users:
+            for source in user.subscribed_sources:
+                news = await get_unread_news(
+                    session=session,
+                    user_id=user.id,
+                    source_id=source.id,
+                    use_default_source=False)
+
+                head = f'Новости по подписке на {source.domain}\n\n'
+                if news:
+                    answer = head + form.format_news_list(news)
+                else:
+                    answer = head + tx.news_is_empty
+
+                await bot.send_message(chat_id=user.id,
+                                       text=answer,
+                                       parse_mode='HTML')
+
+
+async def add_to_db_and_autosend_news(bot: Bot) -> None:
+    """Запускает сбор новостей из API, добавление их в БД и рассылку подписанным пользователям"""
+
+    await add_news()
+    await send_news_to_subscribers(bot=bot)
 
 
 async def add_user(user_id: int, username: str, session: AsyncSession) -> None:
@@ -65,7 +109,8 @@ async def add_user(user_id: int, username: str, session: AsyncSession) -> None:
 async def get_user(user_id: int, session: AsyncSession):
     """Возвращает запись пользователя из БД"""
 
-    user = await session.get(Users, user_id, options=[selectinload(Users.default_news_source)])
+    user = await session.get(Users, user_id, options=[selectinload(Users.default_news_source),
+                                                      selectinload(Users.subscribed_sources)])
 
     return user
 
@@ -135,5 +180,18 @@ async def change_default_news_count(user_id: int, news_count: int, session: Asyn
                           session=session)
 
     user.default_news_count = news_count
+
+    await session.commit()
+
+
+async def add_new_subscribe(user_id: int, subscribe_source_id: int, session: AsyncSession):
+    """Добавляет новостной ресурс в подписки пользователя"""
+
+    user = await get_user(user_id=user_id,
+                          session=session)
+
+    source = await session.get(NewsSources, subscribe_source_id)
+
+    user.subscribed_sources.add(source)
 
     await session.commit()
