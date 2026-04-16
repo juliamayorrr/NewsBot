@@ -47,4 +47,4 @@ class News(Base):
     source_id: Mapped[int] = mapped_column(Integer, ForeignKey('news_sources.id'), nullable=False)
     source: Mapped["NewsSources"] = relationship("NewsSources", back_populates="news")
     title: Mapped[str] = mapped_column(Text)
-    url: Mapped[str] = mapped_column(Text)
+    url: Mapped[str] = mapped_column(Text, unique=True)

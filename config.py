@@ -21,4 +21,6 @@ class NewsAPI:
     news_modes = {'all': '/everything',
                   'top': '/top-headlines'
                   }
+    base_query = 'finance OR финансы'
     sources = None
+    interval_to_fetch = 12

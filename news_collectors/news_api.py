@@ -7,18 +7,18 @@ class NewsAPIClient:
         self.api_key = config.NewsAPI.api_key
         self.base_url = config.NewsAPI.base_url
 
-    async def fetch_news(self, news_mode=None, q=None, sources=None):
+    async def fetch_news(self, news_mode: str = None, q: str = None) -> list:
+        """Отправляет запрос на поиск новостей NewsAPI и возвращает список со статьями"""
+
         if news_mode not in config.NewsAPI.news_modes:
             news_mode = 'all'
         if q is None:
-            q = 'finance OR investing OR trading OR финансы OR трейдинг OR инвестиции'
-        if sources is None:
-            sources = ','.join(config.NewsAPI.sources.keys())
+            q = config.NewsAPI.base_query
 
         url = f"{self.base_url}{config.NewsAPI.news_modes[news_mode]}"
         params = {
             'q': q,
-            'sources': sources,
+            'domains': ','.join(config.NewsAPI.sources.keys()),
             'apiKey': self.api_key,
         }
         async with ClientSession() as session:

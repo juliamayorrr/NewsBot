@@ -22,7 +22,7 @@ async def main():
     scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
     scheduler.add_job(func=add_news,
                       trigger='interval',
-                      hours=12)
+                      hours=config.NewsAPI.interval_to_fetch)
     scheduler.start()
 
     await bot.delete_webhook(drop_pending_updates=True)
