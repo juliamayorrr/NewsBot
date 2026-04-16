@@ -1,0 +1,41 @@
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+import config
+
+
+def get_default_sources_keyboard():
+    buttons = [[InlineKeyboardButton(text=domain,callback_data=f'default_source_{db_id}')]
+                for domain, db_id in config.NewsAPI.sources.items()]
+    buttons.append([InlineKeyboardButton(text='Очистить источник по умолчанию',
+                                         callback_data=f'default_source_0')])
+    sources_keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+
+    return sources_keyboard
+
+
+def get_sources_keyboard():
+    sources_keyboard = InlineKeyboardMarkup(
+                    inline_keyboard=[
+                    [InlineKeyboardButton(text=domain,callback_data=f'news_source_{db_id}')]
+                    for domain, db_id in config.NewsAPI.sources.items()
+                    ])
+    return sources_keyboard
+
+
+def get_settings_keyboard():
+    settings_keyboard = InlineKeyboardMarkup(
+                        inline_keyboard=[[InlineKeyboardButton(text='Изменить источник по умолчанию',
+                                            callback_data=f'change_default_source')],
+                        [InlineKeyboardButton(text='Изменить количество новостей по умолчанию',
+                                            callback_data=f'change_default_news_count')]])
+    return settings_keyboard
+
+
+def get_news_counts_keyboard():
+    news_counts = (1, 5, 10, 15, 20, 30)
+
+    counts_keyboard = InlineKeyboardMarkup(
+                    inline_keyboard=[
+                    [InlineKeyboardButton(text=f'{count}', callback_data=f'news_count_{count}')]
+                    for count in news_counts
+                    ])
+    return counts_keyboard
