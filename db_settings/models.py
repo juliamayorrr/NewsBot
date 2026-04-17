@@ -53,6 +53,7 @@ class News(Base):
     source_id: Mapped[int] = mapped_column(Integer, ForeignKey('news_sources.id'), nullable=False)
     source: Mapped["NewsSources"] = relationship("NewsSources", back_populates="news")
     title: Mapped[str] = mapped_column(Text)
+    published_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True))
     url: Mapped[str] = mapped_column(Text, unique=True)
     sent_by_users: Mapped[list["SentNews"]] = relationship("SentNews", back_populates="news")
 

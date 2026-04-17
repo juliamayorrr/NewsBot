@@ -23,3 +23,7 @@ services:
       - postgres
     networks:
       - newsbot_network
+
+networks:
+  newsbot_network:
+    name: newsbot_network

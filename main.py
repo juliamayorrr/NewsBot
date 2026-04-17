@@ -2,7 +2,7 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from bot_settings import handlers, menu
 import config
-from db_settings.db_funcs import load_sources_to_cache, add_to_db_and_autosend_news
+from db_settings.db_funcs import load_sources_to_cache, add_to_db_and_autosend_news, add_news
 from db_settings.db_middleware import DataBaseSession
 from db_settings.engine import session_maker
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -15,9 +15,9 @@ async def main():
     dp.include_router(handlers.router)
     dp.update.middleware(DataBaseSession(session_pool=session_maker))
 
-    await menu.set_menu(bot)
-
     config.NewsAPI.sources = await load_sources_to_cache()
+
+    await add_news()
 
     scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
     scheduler.add_job(func=add_to_db_and_autosend_news,

@@ -7,7 +7,7 @@ async def set_menu(bot):
             description='Справка по работе бота'),
         BotCommand(
             command='/news',
-            description='Просмотр новостей по источникам'),
+            description='Новости по источникам'),
         BotCommand(
             command='/all_news',
             description='Новости из всех источников'),
@@ -16,7 +16,7 @@ async def set_menu(bot):
             description='Новости из вашего источника по умолчанию'),
         BotCommand(
             command='/settings',
-            description='Настройка параметров получения новостей'),
+            description='Настройка получения новостей'),
         BotCommand(
             command='/subscribes',
             description='Управление подписками на новости'),
