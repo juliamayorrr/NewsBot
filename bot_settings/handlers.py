@@ -103,8 +103,13 @@ async def process_settings_command(message: Message, session: AsyncSession):
 
     user = await db.get_user(user_id=user_id,
                              session=session)
-    answer = form.format_user_settings(user=user)
-    markup = key.get_settings_keyboard()
+
+    if not user:
+        answer = tx.user_is_empty
+        markup = None
+    else:
+        answer = form.format_user_settings(user=user)
+        markup = key.get_settings_keyboard()
 
     await message.answer(text=answer,
                          parse_mode='HTML',
@@ -158,8 +163,12 @@ async def process_subscribes_command(message: Message, session: AsyncSession):
     user = await db.get_user(user_id=user_id,
                              session=session)
 
-    answer = form.format_user_subscribes(user=user)
-    markup = key.get_change_subscribes_keyboard()
+    if not user:
+        answer = tx.user_is_empty
+        markup = None
+    else:
+        answer = form.format_user_subscribes(user=user)
+        markup = key.get_change_subscribes_keyboard()
 
     await message.answer(text=answer,
                          parse_mode='HTML',
