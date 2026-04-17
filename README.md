@@ -1,6 +1,6 @@
 # Telegram-бот NewsBot
 
-Pet-проект telegram-бота для получения новостей из различных источников.
+Pet-проект telegram-бота для получения новостей из различных источников, на данный момент поддерживает: bloomberg.com, kommersant.ru, lenta.ru, wsj.com, businessinsider.com
 
 Не предназначен для production-использования, но может быть полезен как пример кода.
 
